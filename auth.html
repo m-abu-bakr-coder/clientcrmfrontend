@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth Callback</title>
+  <script>
+    window.onload = function() {
+      // Extract the authorization code from the URL fragment
+      const urlParams = new URLSearchParams(window.location.hash.substring(1));
+      const authCode = urlParams.get("code");
+      
+      if (authCode) {
+        console.log("Authorization code found:", authCode);
+        // Send the authorization code to the backend for token exchange
+        fetch('http://localhost:5000/api/login/auth/microsoft', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ auth_code: authCode })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log("Token exchange response:", data);
+          // Optionally store tokens in local storage
+          localStorage.setItem("access_token", data.access_token);
+          localStorage.setItem("refresh_token", data.refresh_token);
+          localStorage.setItem("access_token_expiration", data.access_token_expiration);
+          // Redirect back to your application or show a success message
+          window.location.href = '/';
+        })
+        .catch(error => console.error('Error:', error));
+      } else {
+        console.error("Authorization code not found in the URL.");
+      }
+    };
+  </script>
+</head>
+<body>
+  <h1>Processing Authentication...</h1>
+</body>
+</html>
